@@ -1,106 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Test your microphone and camera online. Easily verify if your webcam and microphone are working properly with this simple tool.">
-  <meta name="keywords" content="test microphone, test camera, webcam test, mic test, online microphone test, online camera test">
-  <meta name="author" content="Your Name">
-  <meta name="robots" content="index, follow">
-  <title>Online Microphone & Camera Test</title>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="Test your microphone and camera online. Easily verify if your webcam and microphone are working properly with this simple tool.">
+		<meta name="keywords" content="test microphone, test camera, webcam test, mic test, online microphone test, online camera test">
+		<meta name="author" content="Your Name">
+		<meta name="robots" content="index, follow">
+		<title>Online Microphone & Camera Test</title>
 
-  <!-- Open Graph Metadata for Social Sharing -->
-  <meta property="og:title" content="Test Microphone and Camera Online">
-  <meta property="og:description" content="Easily verify if your webcam and microphone are working properly with this online tool.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://pragament.github.io/online_tools">
-  <meta property="og:image" content="https://pragament.github.io/images/online_tools.png">
+		<!-- Open Graph Metadata for Social Sharing -->
+		<meta property="og:title" content="Test Microphone and Camera Online">
+		<meta property="og:description" content="Easily verify if your webcam and microphone are working properly with this online tool.">
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="https://pragament.github.io/online_tools">
+		<meta
+		property="og:image" content="https://pragament.github.io/images/online_tools.png">
 
-  <!-- Twitter Card Metadata -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Test Microphone and Camera Online">
-  <meta name="twitter:description" content="Verify if your webcam and microphone are functioning correctly using this online tool.">
-  <meta name="twitter:image" content="https://pragament.github.io/images/online_tools.png">
+		<!-- Twitter Card Metadata -->
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" content="Test Microphone and Camera Online">
+		<meta name="twitter:description" content="Verify if your webcam and microphone are functioning correctly using this online tool.">
+		<meta
+		name="twitter:image" content="https://pragament.github.io/images/online_tools.png">
 
-  <!-- Favicon -->
-  <link rel="icon" href="https://pragament.github.io/favicon.ico" type="image/x-icon">
+		<!-- Favicon -->
+		<link
+		rel="icon" href="https://pragament.github.io/favicon.ico" type="image/x-icon">
 
-  <!-- SEO Best Practices -->
-  <link rel="canonical" href="https://pragament.github.io/online_tools">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-    video, audio {
-      display: block;
-      margin: 20px auto;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-    #status {
-      margin-top: 20px;
-      font-size: 18px;
-      color: green;
-    }
-  </style>
-</head>
-<body>
+		<!-- SEO Best Practices -->
+		<link rel="canonical" href="https://pragament.github.io/online_tools">
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				text-align: center;
+				padding: 20px;
+			}
+			video,
+			audio {
+				display: block;
+				margin: 20px auto;
+			}
+			button {
+				padding: 10px 20px;
+				font-size: 16px;
+			}
+			#status {
+				margin-top: 20px;
+				font-size: 18px;
+				color: green;
+			}
+		</style>
+		<!-- START COPYING HERE -->
+		<link
+		rel="stylesheet" href="https://simonwhitaker.github.io/github-fork-ribbon-css/gh-fork-ribbon.css"/>
+	    <!-- END COPYING HERE -->
+	</head>
+	<body>
+		<!-- TOP LEFT RIBBON: START COPYING HERE -->
+		<a class="github-fork-ribbon left-top" href="https://github.com/Pragament/online_tools" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
+		<!-- TOP LEFT RIBBON: END COPYING HERE -->
+		<h1>Test Your Microphone & Camera Online</h1>
+		<p>Easily check if your microphone and camera are working with this simple tool. No download required!</p>
 
-  <h1>Test Your Microphone & Camera Online</h1>
-  <p>Easily check if your microphone and camera are working with this simple tool. No download required!</p>
+		<!-- GitHub Badge to Fork -->
+		<a href="https://github.com/Pragament/online_tools/fork" target="_blank">
+			<img src="https://img.shields.io/github/forks/Pragament/online_tools?style=social" alt="Fork on GitHub">
+		</a>
 
-  <!-- GitHub Badge to Fork -->
-  <a href="https://github.com/Pragament/online_tools/fork" target="_blank">
-    <img src="https://img.shields.io/github/forks/Pragament/online_tools?style=social" alt="Fork on GitHub">
-  </a>
+		<button id="test-camera">Test Camera</button>
+		<button id="test-microphone">Test Microphone</button>
 
-  <button id="test-camera">Test Camera</button>
-  <button id="test-microphone">Test Microphone</button>
+		<video id="video" width="640" height="480" autoplay muted></video>
+		<audio id="audio" controls></audio>
 
-  <video id="video" width="640" height="480" autoplay muted></video>
-  <audio id="audio" controls></audio>
-  
-  <div id="status"></div>
+		<div id="status"></div>
 
-  <script>
-    const videoElement = document.getElementById('video');
-    const audioElement = document.getElementById('audio');
-    const statusDiv = document.getElementById('status');
+		<script>
+			const videoElement = document.getElementById('video');
+const audioElement = document.getElementById('audio');
+const statusDiv = document.getElementById('status');
 
-    // Test Camera
-    document.getElementById('test-camera').addEventListener('click', async () => {
-      try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-        videoElement.srcObject = mediaStream;
-        statusDiv.innerText = "Camera is active!";
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        statusDiv.innerText = "Error accessing camera: " + error.message;
-      }
-    });
+// Test Camera
+document.getElementById('test-camera').addEventListener('click', async () => {
+try {
+const mediaStream = await navigator.mediaDevices.getUserMedia({video: true});
+videoElement.srcObject = mediaStream;
+statusDiv.innerText = "Camera is active!";
+} catch (error) {
+console.error('Error accessing camera:', error);
+statusDiv.innerText = "Error accessing camera: " + error.message;
+}
+});
 
-    // Test Microphone
-    document.getElementById('test-microphone').addEventListener('click', async () => {
-      try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const audioTracks = mediaStream.getAudioTracks();
-        if (audioTracks.length > 0) {
-          const audioStream = new MediaStream([audioTracks[0]]);
-          audioElement.srcObject = audioStream;
-          statusDiv.innerText = "Microphone is active!";
-        } else {
-          statusDiv.innerText = "No audio track available!";
-        }
-      } catch (error) {
-        console.error('Error accessing microphone:', error);
-        statusDiv.innerText = "Error accessing microphone: " + error.message;
-      }
-    });
-  </script>
+// Test Microphone
+document.getElementById('test-microphone').addEventListener('click', async () => {
+try {
+const mediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
+const audioTracks = mediaStream.getAudioTracks();
+if (audioTracks.length > 0) {
+const audioStream = new MediaStream([audioTracks[0]]);
+audioElement.srcObject = audioStream;
+statusDiv.innerText = "Microphone is active!";
+} else {
+statusDiv.innerText = "No audio track available!";
+}
+} catch (error) {
+console.error('Error accessing microphone:', error);
+statusDiv.innerText = "Error accessing microphone: " + error.message;
+}
+});
+		</script>
 
-</body>
+	</body>
 </html>
