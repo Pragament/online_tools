@@ -1,80 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="description" content="Test your microphone and camera online. Easily verify if your webcam and microphone are working properly with this simple tool.">
-		<meta name="keywords" content="test microphone, test camera, webcam test, mic test, online microphone test, online camera test">
-		<meta name="author" content="Your Name">
-		<meta name="robots" content="index, follow">
-		<title>Online Microphone & Camera Test</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="description" content="Test your microphone and camera online. Easily verify if your webcam and microphone are working properly with this simple tool." />
+  <meta name="keywords" content="test microphone, test camera, webcam test, mic test, online microphone test, online camera test" />
+  <meta name="author" content="Your Name" />
+  <meta name="robots" content="index, follow" />
+  <title>Online Microphone & Camera Test</title>
 
-		<!-- Open Graph Metadata for Social Sharing -->
-		<meta property="og:title" content="Test Microphone and Camera Online">
-		<meta property="og:description" content="Easily verify if your webcam and microphone are working properly with this online tool.">
-		<meta property="og:type" content="website">
-		<meta property="og:url" content="https://pragament.github.io/online_tools">
-		<meta
-		property="og:image" content="https://pragament.github.io/images/online_tools.png">
+  <!-- Open Graph & Twitter Card -->
+  <meta property="og:title" content="Test Microphone and Camera Online" />
+  <meta property="og:description" content="Easily verify if your webcam and microphone are working properly with this online tool." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pragament.github.io/online_tools" />
+  <meta property="og:image" content="https://pragament.github.io/images/online_tools.png" />
 
-		<!-- Twitter Card Metadata -->
-		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:title" content="Test Microphone and Camera Online">
-		<meta name="twitter:description" content="Verify if your webcam and microphone are functioning correctly using this online tool.">
-		<meta
-		name="twitter:image" content="https://pragament.github.io/images/online_tools.png">
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Test Microphone and Camera Online" />
+  <meta name="twitter:description" content="Verify if your webcam and microphone are functioning correctly using this online tool." />
+  <meta name="twitter:image" content="https://pragament.github.io/images/online_tools.png" />
 
-		<!-- Favicon -->
-		<link
-		rel="icon" href="https://pragament.github.io/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="https://pragament.github.io/favicon.ico" type="image/x-icon" />
+  <link rel="canonical" href="https://pragament.github.io/online_tools" />
 
-		<!-- SEO Best Practices -->
-		<link rel="canonical" href="https://pragament.github.io/online_tools">
-		<style>
-			body {
-				font-family: Arial, sans-serif;
-				text-align: center;
-				padding: 20px;
-			}
-			video,
-			audio {
-				display: block;
-				margin: 20px auto;
-			}
-			button {
-				padding: 10px 20px;
-				font-size: 16px;
-			}
-			#status {
-				margin-top: 20px;
-				font-size: 18px;
-				color: green;
-			}
-		</style>
-		<!-- START COPYING HERE -->
-		<link
-		rel="stylesheet" href="https://simonwhitaker.github.io/github-fork-ribbon-css/gh-fork-ribbon.css"/>
-	    <!-- END COPYING HERE -->
-	</head>
-	<body>
-		<!-- TOP LEFT RIBBON: START COPYING HERE -->
-		<a class="github-fork-ribbon left-top" href="https://github.com/Pragament/online_tools" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
-		<!-- TOP LEFT RIBBON: END COPYING HERE -->
-		<h1>Test Your Microphone & Camera Online</h1>
-		<p>Easily check if your microphone and camera are working with this simple tool. No download required!</p>
+  <!-- Fork Ribbon -->
+  <link rel="stylesheet" href="https://simonwhitaker.github.io/github-fork-ribbon-css/gh-fork-ribbon.css" />
 
-		<!-- GitHub Badge to Fork -->
-		<a href="https://github.com/Pragament/online_tools/fork" target="_blank">
-			<img src="https://img.shields.io/github/forks/Pragament/online_tools?style=social" alt="Fork on GitHub">
-		</a>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 30px 20px;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
 
-		<button id="test-camera">Test Camera</button>
-		<button id="test-microphone">Test Microphone</button>
+    h1 {
+      margin-bottom: 10px;
+    }
 
-		<video id="video" width="640" height="480" autoplay muted></video>
-		<audio id="audio" controls></audio>
+    p {
+      margin-bottom: 30px;
+      color: #555;
+    }
 
-		<div id="status"></div>
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    button {
+      padding: 10px 25px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 6px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #audio {
+      margin: 20px auto;
+    }
+
+    #video {
+      width: 100%;
+      max-width: 640px;
+      height: auto;
+      margin: 20px auto;
+      display: block;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 18px;
+      color: green;
+    }
+
+    a img {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <a class="github-fork-ribbon left-top" href="https://github.com/Pragament/online_tools" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
+
+  <h1>Test Your Microphone & Camera Online</h1>
+  <p>Easily check if your microphone and camera are working with this simple tool. No download required!</p>
+
+  <a href="https://github.com/Pragament/online_tools/fork" target="_blank">
+    <img src="https://img.shields.io/github/forks/Pragament/online_tools?style=social" alt="Fork on GitHub">
+  </a>
+
+  <div class="button-container">
+    <button id="test-microphone">Test Microphone</button>
+    <button id="test-camera">Test Camera</button>
+  </div>
+
+  <audio id="audio" controls></audio>
+  <video id="video" autoplay muted></video>
+
+  <div id="status"></div>
 
 		<script>
 			const videoElement = document.getElementById('video');
