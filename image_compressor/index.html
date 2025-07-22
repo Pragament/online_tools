@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Image Clipboard Compressor with Rotation, Quality, and
+            Algorithm</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #preview {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+        button, input[type="checkbox"] {
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+    </style>
+    </head>
+    <body>
+        <h1>Image Clipboard Compressor with Rotation, Quality, and
+            Algorithm</h1>
+
+        <div class="controls">
+            <div id="drop-zone"
+                style="border: 2px dashed #888; padding: 30px; text-align: center;">
+                <strong>Drag & Drop an image here</strong>
+            </div>
+
+            <input type="file" accept="image/*" id="upload" />
+            <button onclick="processClipboardImage()">Paste Image</button>
+            <button onclick="rotateImage(90)">Rotate Clockwise</button>
+            <button onclick="rotateImage(-90)">Rotate Counterclockwise</button>
+
+            <div>
+                <label for="quality">Compression Quality: <span
+                        id="quality-value">1</span>%</label>
+                <input id="quality" type="range" min="1" max="100" value="1"
+                    oninput="updateQuality(this.value)">
+            </div>
+
+            <div>
+                <label for="algorithm">Compression Algorithm:</label>
+                <select id="algorithm" onchange="updateAlgorithm()">
+                    <option value="image/jpeg">JPEG</option>
+                    <option value="image/png">PNG</option>
+                    <option value="image/webp">WebP</option>
+                </select>
+            </div>
+
+            <div>
+                <input id="auto-copy" type="checkbox" checked />
+                <label for="auto-copy">Automatically copy image to clipboard
+                    after each change</label>
+            </div>
+
+            <p>Compressed File Size: <span id="file-size">-</span> KB</p>
+            <button onclick="downloadCompressedImage()">Download Compressed Image</button>
+        </div>
+
+        <p id="status"></p>
+        <img id="preview" src alt="Image Preview" />
+
+        <script>
+        let currentRotation = 0; // To track the current rotation angle
+        let imageBlob = null; // To store the image blob after pasting
+        let quality = 0.9; // Compression quality (initially set to 90%)
+        let selectedAlgorithm = 'image/jpeg'; // Default compression algorithm
+
+        // Function to update the quality value when the slider changes
+        function updateQuality(value) {
+            quality = value / 100;
+            document.getElementById('quality-value').textContent = value;
+            if (imageBlob) {
+                renderImageWithRotation(imageBlob, currentRotation, quality);
+            }
+        }
+
+    function updateAlgorithm() {
+      selectedAlgorithm = document.getElementById('algorithm').value;
+      if (imageBlob) {
+        renderImageWithRotation(imageBlob, currentRotation, quality);
+      }
+    }
+
+    function rotateImage(angle) {
+      currentRotation = (currentRotation + angle) % 360;
+      if (imageBlob) {
+        renderImageWithRotation(imageBlob, currentRotation, quality);
+      }
+    }
+
+    async function processClipboardImage() {
+      try {
+        const status = document.getElementById('status');
+        const clipboardItems = await navigator.clipboard.read();
+        for (const item of clipboardItems) {
+          const supportedTypes = ['image/png', 'image/jpeg'];
+          const imageType = supportedTypes.find(type => item.types.includes(type));
+          if (imageType) {
+            const blob = await item.getType(imageType);
+            imageBlob = blob;
+            renderImageWithRotation(blob, currentRotation, quality);
+          } else {
+            status.textContent = 'No image found in clipboard or unsupported type.';
+          }
+        }
+      } catch (err) {
+        document.getElementById('status').textContent = 'Error: Could not access clipboard.';
+      }
+    }
+
+    function renderImageWithRotation(blob, rotationAngle, compressionQuality) {
+      const img = new Image();
+      img.src = URL.createObjectURL(blob);
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        if (rotationAngle % 180 === 0) {
+          canvas.width = img.width;
+          canvas.height = img.height;
+        } else {
+          canvas.width = img.height;
+          canvas.height = img.width;
+        }
+
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(rotationAngle * Math.PI / 180);
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+        const preview = document.getElementById('preview');
+        preview.src = canvas.toDataURL();
+
+        canvas.toBlob(async (compressedBlob) => {
+          const fileSizeInKB = (compressedBlob.size / 1024).toFixed(2);
+          document.getElementById('file-size').textContent = fileSizeInKB;
+
+          if (document.getElementById('auto-copy').checked) {
+            const data = [new ClipboardItem({ [selectedAlgorithm]: compressedBlob })];
+            await navigator.clipboard.write(data);
+          }
+        }, selectedAlgorithm, selectedAlgorithm === 'image/png' ? undefined : compressionQuality);
+      };
+    }
+
+    function downloadCompressedImage() {
+      const img = new Image();
+      img.src = URL.createObjectURL(imageBlob);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        if (currentRotation % 180 === 0) {
+          canvas.width = img.width;
+          canvas.height = img.height;
+        } else {
+          canvas.width = img.height;
+          canvas.height = img.width;
+        }
+
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(currentRotation * Math.PI / 180);
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+        canvas.toBlob((blob) => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `compressed.${selectedAlgorithm.split('/')[1]}`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }, selectedAlgorithm, selectedAlgorithm === 'image/png' ? undefined : quality);
+      };
+    }
+
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.backgroundColor = '#eee';
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.backgroundColor = '';
+    });
+    dropZone.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      dropZone.style.backgroundColor = '';
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        imageBlob = file;
+        renderImageWithRotation(imageBlob, currentRotation, quality);
+      } else {
+        document.getElementById('status').textContent = 'Please drop a valid image file.';
+    }
+});
+
+// Upload button
+document.getElementById('upload').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        imageBlob = file;
+        renderImageWithRotation(imageBlob, currentRotation, quality);
+    } else {
+        document.getElementById('status').textContent = 'Please select a valid image file.';
+    }
+});
+
+// Download button 
+function downloadImage() {
+    if (!imageBlob) {
+        alert("No image to download.");
+        return;
+    }
+
+    const img = new Image();
+    img.src = URL.createObjectURL(imageBlob);
+
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        if (currentRotation % 180 === 0) {
+            canvas.width = img.width;
+            canvas.height = img.height;
+        } else {
+            canvas.width = img.height;
+            canvas.height = img.width;
+        }
+
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(currentRotation * Math.PI / 180);
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+        canvas.toBlob((blob) => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'compressed-image.' + selectedAlgorithm.split('/')[1];
+            link.click();
+        }, selectedAlgorithm, selectedAlgorithm === 'image/png' ? undefined : quality);
+    };
+}
+
+
+    </script>
+    </body>
+</html>
