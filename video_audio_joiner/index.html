@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video-Audio Merger</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .upload-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-box {
+            border: 3px dashed #e0e7ff;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8fafc;
+        }
+
+        .upload-box:hover {
+            border-color: #4f46e5;
+            background: #f0f9ff;
+            transform: translateY(-5px);
+        }
+
+        .upload-box.active {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #4f46e5;
+        }
+
+        .upload-box h3 {
+            color: #334155;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .upload-box p {
+            color: #64748b;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e0e7ff;
+            font-size: 0.9rem;
+            color: #475569;
+            text-align: left;
+        }
+
+        .file-info strong {
+            color: #4f46e5;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .button {
+            padding: 18px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .button-primary:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+        }
+
+        .button-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .button-secondary:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+
+        .status {
+            padding: 20px;
+            border-radius: 12px;
+            background: #f0f9ff;
+            border: 2px solid #e0e7ff;
+            text-align: center;
+            font-size: 1rem;
+            color: #475569;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .status.hidden {
+            display: none;
+        }
+
+        .status.success {
+            background: #ecfdf5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .status.error {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e0e7ff;
+            border-top: 5px solid #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e7ff;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .download-section {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .download-link {
+            display: inline-block;
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .download-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .requirements {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 2px solid #e0e7ff;
+        }
+
+        .requirements h3 {
+            color: #334155;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .requirements ul {
+            list-style: none;
+            color: #475569;
+            line-height: 1.8;
+        }
+
+        .requirements li {
+            padding: 5px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .requirements li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 0.9rem;
+            border-top: 2px solid #e0e7ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Video + Audio Merger</h1>
+            <p>Combine silent video with WAV audio to create MP4 files</p>
+        </div>
+
+        <div class="content">
+            <div class="upload-section">
+                <div class="upload-box" id="videoUpload">
+                    <div class="upload-icon">📹</div>
+                    <h3>Upload Video (without audio)</h3>
+                    <p>Click to upload or drag & drop video file</p>
+                    <p><small>Supported: MP4, WebM, MOV, AVI</small></p>
+                    <div class="file-info" id="videoInfo">No video selected</div>
+                </div>
+
+                <div class="upload-box" id="audioUpload">
+                    <div class="upload-icon">🎵</div>
+                    <h3>Upload Audio (WAV)</h3>
+                    <p>Click to upload or drag & drop audio file</p>
+                    <p><small>Only WAV format supported</small></p>
+                    <div class="file-info" id="audioInfo">No audio selected</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="button button-primary" id="mergeBtn" disabled>
+                    <span>🔄 Merge Video & Audio</span>
+                </button>
+                <button class="button button-secondary" id="resetBtn">
+                    <span>🔄 Reset All</span>
+                </button>
+            </div>
+
+            <div class="status" id="status">
+                Upload video and audio files to begin
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>Processing... This may take a moment</div>
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+            </div>
+
+            <div class="download-section hidden" id="downloadSection">
+                <a href="#" class="download-link" id="downloadLink" download="merged_video.mp4">
+                    ⬇️ Download Merged MP4
+                </a>
+                <p style="margin-top: 15px; color: #64748b;">
+                    File will be downloaded as <strong>merged_video.mp4</strong>
+                </p>
+            </div>
+
+            <div class="requirements">
+                <h3>📋 Requirements & Tips:</h3>
+                <ul>
+                    <li>Video file should not contain audio tracks</li>
+                    <li>Audio must be in WAV format for best compatibility</li>
+                    <li>Processing is done entirely in your browser - no uploads to server</li>
+                    <li>Larger files will take longer to process</li>
+                    <li>For best results, match audio length with video duration</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>This tool works entirely in your browser. No files are uploaded to any server.</p>
+            <p>Uses HTML5 Media APIs and FFmpeg.wasm for processing</p>
+        </footer>
+    </div>
+
+    <!-- FFmpeg library -->
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.4/dist/ffmpeg.min.js"></script>
+    <script>
+        // DOM Elements
+        const videoUpload = document.getElementById('videoUpload');
+        const audioUpload = document.getElementById('audioUpload');
+        const videoInfo = document.getElementById('videoInfo');
+        const audioInfo = document.getElementById('audioInfo');
+        const mergeBtn = document.getElementById('mergeBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const status = document.getElementById('status');
+        const loading = document.getElementById('loading');
+        const progress = document.getElementById('progress');
+        const downloadSection = document.getElementById('downloadSection');
+        const downloadLink = document.getElementById('downloadLink');
+
+        // State
+        let videoFile = null;
+        let audioFile = null;
+        let ffmpeg = null;
+
+        // Initialize FFmpeg
+        async function initFFmpeg() {
+            try {
+                const { createFFmpeg, fetchFile } = FFmpeg;
+                ffmpeg = createFFmpeg({ log: true });
+                
+                if (!ffmpeg.isLoaded()) {
+                    status.textContent = 'Loading FFmpeg...';
+                    status.className = 'status';
+                    await ffmpeg.load();
+                    status.textContent = 'FFmpeg loaded successfully!';
+                    status.className = 'status success';
+                    setTimeout(() => {
+                        if (videoFile && audioFile) {
+                            status.textContent = 'Ready to merge!';
+                            status.className = 'status';
+                        }
+                    }, 2000);
+                }
+            } catch (error) {
+                status.textContent = `Error loading FFmpeg: ${error.message}`;
+                status.className = 'status error';
+            }
+        }
+
+        // File upload handlers
+        function setupUpload(element, fileType, infoElement, onFileSelect) {
+            ['click', 'dragover', 'drop'].forEach(event => {
+                element.addEventListener(event, e => e.preventDefault());
+            });
+
+            element.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                element.classList.add('active');
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    await onFileSelect(file);
+                }
+                setTimeout(() => element.classList.remove('active'), 1000);
+            });
+
+            element.addEventListener('click', () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = fileType === 'video' ? 'video/*' : 'audio/wav,audio/x-wav';
+                input.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        element.classList.add('active');
+                        await onFileSelect(file);
+                        setTimeout(() => element.classList.remove('active'), 1000);
+                    }
+                };
+                input.click();
+            });
+        }
+
+        // Video file selection
+        async function handleVideoSelect(file) {
+            if (!file.type.startsWith('video/')) {
+                status.textContent = 'Please select a valid video file';
+                status.className = 'status error';
+                return;
+            }
+
+            videoFile = file;
+            videoInfo.innerHTML = `<strong>Video:</strong> ${file.name}<br>
+                                 <small>Size: ${formatFileSize(file.size)}</small><br>
+                                 <small>Type: ${file.type}</small>`;
+            
+            updateMergeButton();
+            status.textContent = 'Video file selected. Now select audio file.';
+            status.className = 'status';
+        }
+
+        // Audio file selection
+        async function handleAudioSelect(file) {
+            if (!file.type.includes('wav') && !file.name.toLowerCase().endsWith('.wav')) {
+                status.textContent = 'Please select a WAV audio file';
+                status.className = 'status error';
+                return;
+            }
+
+            audioFile = file;
+            audioInfo.innerHTML = `<strong>Audio:</strong> ${file.name}<br>
+                                 <small>Size: ${formatFileSize(file.size)}</small><br>
+                                 <small>Type: ${file.type}</small>`;
+            
+            updateMergeButton();
+            status.textContent = 'Audio file selected. Ready to merge!';
+            status.className = 'status success';
+        }
+
+        // Update merge button state
+        function updateMergeButton() {
+            mergeBtn.disabled = !(videoFile && audioFile);
+            if (!ffmpeg) {
+                status.textContent = 'Initializing FFmpeg...';
+                initFFmpeg();
+            }
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Merge video and audio
+        async function mergeVideoAudio() {
+            if (!videoFile || !audioFile || !ffmpeg || !ffmpeg.isLoaded()) {
+                status.textContent = 'Please wait for FFmpeg to load';
+                status.className = 'status error';
+                return;
+            }
+
+            try {
+                // Show loading state
+                mergeBtn.disabled = true;
+                loading.classList.add('active');
+                status.classList.add('hidden');
+                downloadSection.classList.add('hidden');
+                progress.style.width = '0%';
+
+                // Update progress
+                const updateProgress = (ratio) => {
+                    const percent = Math.round(ratio * 100);
+                    progress.style.width = `${percent}%`;
+                };
+
+                status.textContent = 'Starting merge process...';
+                status.className = 'status';
+
+                // Write files to FFmpeg
+                updateProgress(0.1);
+                ffmpeg.FS('writeFile', 'input_video', await fetchFile(videoFile));
+                updateProgress(0.2);
+                ffmpeg.FS('writeFile', 'input_audio', await fetchFile(audioFile));
+                updateProgress(0.3);
+
+                // Run FFmpeg command to merge video and audio
+                status.textContent = 'Processing video and audio...';
+                
+                await ffmpeg.run(
+                    '-i', 'input_video',
+                    '-i', 'input_audio',
+                    '-c:v', 'copy',           // Copy video codec
+                    '-c:a', 'aac',           // Use AAC audio codec
+                    '-shortest',             // Use shortest input duration
+                    '-map', '0:v:0',         // Map video stream
+                    '-map', '1:a:0',         // Map audio stream
+                    'output.mp4'
+                );
+
+                updateProgress(0.9);
+
+                // Read output file
+                const data = ffmpeg.FS('readFile', 'output.mp4');
+                updateProgress(1);
+
+                // Create download link
+                const blob = new Blob([data.buffer], { type: 'video/mp4' });
+                const url = URL.createObjectURL(blob);
+                
+                downloadLink.href = url;
+                downloadLink.download = `merged_${Date.now()}.mp4`;
+                
+                // Show success state
+                loading.classList.remove('active');
+                downloadSection.classList.remove('hidden');
+                
+                status.textContent = 'Merge completed successfully!';
+                status.className = 'status success';
+                status.classList.remove('hidden');
+
+                // Cleanup
+                ffmpeg.FS('unlink', 'input_video');
+                ffmpeg.FS('unlink', 'input_audio');
+                ffmpeg.FS('unlink', 'output.mp4');
+
+            } catch (error) {
+                console.error('Merge error:', error);
+                loading.classList.remove('active');
+                status.textContent = `Error: ${error.message}`;
+                status.className = 'status error';
+                status.classList.remove('hidden');
+                mergeBtn.disabled = false;
+            }
+        }
+
+        // Reset all
+        function resetAll() {
+            videoFile = null;
+            audioFile = null;
+            videoInfo.textContent = 'No video selected';
+            audioInfo.textContent = 'No audio selected';
+            mergeBtn.disabled = true;
+            status.textContent = 'Upload video and audio files to begin';
+            status.className = 'status';
+            downloadSection.classList.add('hidden');
+            loading.classList.remove('active');
+            progress.style.width = '0%';
+            
+            if (ffmpeg) {
+                try {
+                    ffmpeg.exit();
+                } catch (e) {
+                    console.log('FFmpeg cleanup complete');
+                }
+                ffmpeg = null;
+            }
+            
+            initFFmpeg();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupUpload(videoUpload, 'video', videoInfo, handleVideoSelect);
+            setupUpload(audioUpload, 'audio', audioInfo, handleAudioSelect);
+            
+            mergeBtn.addEventListener('click', mergeVideoAudio);
+            resetBtn.addEventListener('click', resetAll);
+            
+            initFFmpeg();
+        });
+
+        // Cleanup URLs on page unload
+        window.addEventListener('beforeunload', () => {
+            if (downloadLink.href.startsWith('blob:')) {
+                URL.revokeObjectURL(downloadLink.href);
+            }
+        });
+    </script>
+</body>
+</html>
